@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
 set -e
+#set -x
 
 SCRIPT_DIR="$( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd)"
 CLUSTER_DIR="$SCRIPT_DIR/cluster"
 VIRTUAL_INTERFACE_IP=192.168.44.10
 FH_CORE_OPENSHIFT_TEMPLATES="$HOME/work/fh-core-openshift-templates"
+BASE_PV_DIR="/tmp"
 export CORE_PROJECT_NAME=core
 export CLUSTER_DOMAIN=$VIRTUAL_INTERFACE_IP.xip.io
 
@@ -89,6 +91,8 @@ echo "Cluster up, continuing."
 echo "Creating PVs..."
 asSysAdmin
 sleep 1
+# we do a global find and replace as the list will contain more than one pv
+sed -i -e "s|{BASE_PLACEHOLDER_DIR}|${BASE_PV_DIR}|g" pvs-template.yml
 oc create -f ./pvs-template.yml
 echo "Done."
 

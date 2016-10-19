@@ -22,7 +22,64 @@
         ],
         "persistentVolumeReclaimPolicy": "Delete",
         "hostPath": {
-          "path": "/Users/jasonmadigan/Work/fh-cup/volumes"
+          "path": "{BASE_PLACEHOLDER_DIR}/volumes/devpv1"
+        }
+      }
+    },
+    {
+      "kind": "PersistentVolume",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "devpv2"
+      },
+      "spec": {
+        "capacity": {
+          "storage": "50Gi"
+        },
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "persistentVolumeReclaimPolicy": "Delete",
+        "hostPath": {
+          "path": "{BASE_PLACEHOLDER_DIR}/volumes/devpv2"
+        }
+      }
+    },
+    {
+      "kind": "PersistentVolume",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "devpv3"
+      },
+      "spec": {
+        "capacity": {
+          "storage": "50Gi"
+        },
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "persistentVolumeReclaimPolicy": "Delete",
+        "hostPath": {
+          "path": "{BASE_PLACEHOLDER_DIR}/volumes/devpv3"
+        }
+      }
+    },
+    {
+      "kind": "PersistentVolume",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "devpv4"
+      },
+      "spec": {
+        "capacity": {
+          "storage": "50Gi"
+        },
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "persistentVolumeReclaimPolicy": "Delete",
+        "hostPath": {
+          "path": "{BASE_PLACEHOLDER_DIR}/volumes/devpv4"
         }
       }
     }
