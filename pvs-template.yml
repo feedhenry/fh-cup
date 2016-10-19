@@ -1,0 +1,30 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "pvs",
+    "annotations": {
+    }
+  },
+  "items": [
+    {
+      "kind": "PersistentVolume",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "devpv1"
+      },
+      "spec": {
+        "capacity": {
+          "storage": "50Gi"
+        },
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "persistentVolumeReclaimPolicy": "Delete",
+        "hostPath": {
+          "path": "/Users/jasonmadigan/Work/fh-cup/volumes"
+        }
+      }
+    }
+  ]
+}
