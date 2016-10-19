@@ -70,8 +70,8 @@ oc new-project $CORE_PROJECT_NAME
 echo "Done."
 
 echo "Running Core setup scripts...."
-cd $FH_CORE_OPENSHIFT_TEMPLATES/scripts/core
 
+cd $FH_CORE_OPENSHIFT_TEMPLATES/scripts/core
 echo "Running prerequisites.sh..."
 ./prerequisites.sh
 asSysAdmin
