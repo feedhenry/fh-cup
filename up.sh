@@ -4,6 +4,7 @@ set -e
 
 SCRIPT_DIR="$( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd)"
 CLUSTER_DIR="$SCRIPT_DIR/cluster"
+VOLUMES_DIR="$SCRIPT_DIR/cluster/volumes"
 VIRTUAL_INTERFACE_IP=192.168.44.10
 FH_CORE_OPENSHIFT_TEMPLATES="$HOME/work/fh-core-openshift-templates"
 export CORE_PROJECT_NAME=core
@@ -87,9 +88,21 @@ oc cluster up --host-data-dir=$CLUSTER_DIR/data --host-config-dir=$CLUSTER_DIR/c
 echo "Cluster up, continuing."
 
 echo "Creating PVs..."
+
+if [ "$(uname)" == "Darwin" ]; then
+  # macOS
+  for i in {1..10}; do mkdir -p $VOLUMES_DIR/devpv${i} && rm -rf $VOLUMES_DIR/devpv${i}/* && chmod 777 $VOLUMES_DIR/devpv${i}; done
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  # Linux
+  for i in {1..10}; do mkdir -p $VOLUMES_DIR/devpv${i} && rm -rf $VOLUMES_DIR/devpv${i}/* && chmod 777 $VOLUMES_DIR/devpv${i} && chcon -R -t svirt_sandbox_file_t $VOLUMES_DIR/devpv${i}; done
+fi
+
+cp ./pvs-template.json ./pvs.json
+sed -i -e 's@REPLACE_ME@'"$VOLUMES_DIR"'@' pvs.json
+rm -f pvs.json-e
 asSysAdmin
 sleep 1
-oc create -f ./pvs-template.yml
+oc create -f ./pvs.json
 echo "Done."
 
 echo "Creating Core Project..."
@@ -102,14 +115,48 @@ echo "Running Core setup scripts...."
 cd $FH_CORE_OPENSHIFT_TEMPLATES/scripts/core
 echo "Running prerequisites.sh..."
 ./prerequisites.sh
+echo "Done."
+
+echo "Updating Security Context Constraints..."
 asSysAdmin
 oc create -f $FH_CORE_OPENSHIFT_TEMPLATES/gitlab-shell/scc-anyuid-with-chroot.json
 oc adm policy add-scc-to-user anyuid-with-chroot system:serviceaccount:${CORE_PROJECT_NAME}:default
 asDeveloper
 echo "Done."
 
+# TODO: Check for dockercfg
+echo "Creating private-docker-cfg secret from ~/.docker/config.json ..."
+oc secrets new private-docker-cfg .dockerconfigjson=~/.docker/config.json
+oc secrets link default private-docker-cfg-file --for=pull
+echo "Done."
+
+echo "To get events, run: oc get events -w"
+
+# TODO: Loops for status checking
 echo "Running infra setup..."
 ./infra.sh
-echo "Done."
+echo "Waiting."
+sleep 60
+oc get po
+
+echo "Running backend setup..."
+./backend.sh
+echo "Waiting."
+sleep 60
+oc get po
+
+echo "Running frontend setup..."
+./frontend.sh
+echo "Waiting."
+sleep 60
+oc get po
+
+echo "Running monitoring setup..."
+./monitoring.sh
+echo "Waiting."
+sleep 60
+oc get po
+
+# TODO: MBaaS creation & hook up
 
 cd $SCRIPT_DIR
