@@ -13,11 +13,10 @@ Some scripts to wrap `oc cluster up` to give you a working local RHMAP core for 
 
 ## TODO
 
-- [ ] Script PV creation
-- [ ] Create Core
+- [x] Script PV creation
+- [x] Create Core
 - [ ] Call MBaaS creation script
 - [ ] Link MBaaS to Core via FHC
-- [ ] Capture known issues/troubleshoting
 
 ## Prerequisites
 
