@@ -7,9 +7,8 @@ CLUSTER_DIR="$SCRIPT_DIR/cluster"
 VOLUMES_DIR="$SCRIPT_DIR/cluster/volumes"
 VIRTUAL_INTERFACE_IP=192.168.44.10
 FH_CORE_OPENSHIFT_TEMPLATES="$HOME/work/fh-core-openshift-templates"
-FH_MBAAS_OPENSHIFT_TEMPLATES="$HOME/work/fh-openshift-templates"
 export CORE_PROJECT_NAME=core
-export CLUSTER_DOMAIN=$VIRTUAL_INTERFACE_IP.xip.io
+export CLUSTER_DOMAIN=cup.feedhenry.io
 
 FLUSH_IPTABLES=${FLUSH_IPTABLES:-"false"}
 
@@ -84,7 +83,7 @@ mkdir -p $CLUSTER_DIR/data $CLUSTER_DIR/config $CLUSTER_DIR/volumes
 
 echo "Running 'oc cluster up'..."
 
-oc cluster up --host-data-dir=$CLUSTER_DIR/data --host-config-dir=$CLUSTER_DIR/config --public-hostname=$VIRTUAL_INTERFACE_IP --routing-suffix=$VIRTUAL_INTERFACE_IP.xip.io
+oc cluster up --host-data-dir=$CLUSTER_DIR/data --host-config-dir=$CLUSTER_DIR/config --public-hostname=$VIRTUAL_INTERFACE_IP --routing-suffix=cup.feedhenry.io
 # TODO: Check !=0 return
 echo "Cluster up, continuing."
 
