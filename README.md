@@ -39,6 +39,14 @@ Some scripts to wrap `oc cluster up` to give you a working local RHMAP core for 
 ### Linux Specific
 -------------------
 
+####RHEL & Fedora
+
+* Running `./up.sh` produces error related to virtual interface. Solution:
+* Add the following to `/etc/sysconfig/docker`
+```bash
+DOCKER_OPTS="--insecure-registry 172.30.0.0/16"
+```
+
 ### Mac Specific
 -------------------
 
