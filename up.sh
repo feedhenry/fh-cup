@@ -126,8 +126,9 @@ echo "Done."
 
 # TODO: Check for dockercfg
 echo "Creating private-docker-cfg secret from ~/.docker/config.json ..."
-oc secrets new private-docker-cfg .dockerconfigjson=~/.docker/config.json
-oc secrets link default private-docker-cfg-file --for=pull
+DOCKER_CONFIG=$HOME/.docker/config.json
+oc secrets new private-docker-cfg .dockerconfigjson=$DOCKER_CONFIG
+oc secrets link default private-docker-cfg --for=pull
 echo "Done."
 
 echo "To get events, run: oc get events -w"
