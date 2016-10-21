@@ -1,0 +1,189 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "pvs",
+    "annotations": {}
+  },
+  "items": [{
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv1"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "1Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv1"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv2"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "1Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv2"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv3"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv3"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv4"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv4"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv5"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv5"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv6"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv6"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv7"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv7"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv8"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "25Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv8"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv9"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "50Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv9"
+      }
+    }
+  }, {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "devpv10"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "50Gi"
+      },
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "persistentVolumeReclaimPolicy": "Delete",
+      "hostPath": {
+        "path": "REPLACE_ME/devpv10"
+      }
+    }
+  }]
+}

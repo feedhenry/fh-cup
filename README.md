@@ -23,6 +23,8 @@ Some scripts to wrap `oc cluster up` to give you a working local RHMAP core for 
 
 - [x] Docker (for Mac* / Linux)
 - [x] OpenShift 3 Client CLI Tool `oc` version >= *[v1.3](https://github.com/openshift/origin/releases/tag/v1.3.1)*
+- [x] `socat` installed
+- [x] `docker` logged in to a Docker Hub account with access to the rhmap project
 
 ## * Docker for Mac
 - For a core, you should allocate ~6GB of memory
@@ -33,7 +35,7 @@ Some scripts to wrap `oc cluster up` to give you a working local RHMAP core for 
 ### General
 -------------------
 
-* Docker configuartion needs to be at `$HOME/.dockercfg`
+* Docker configuration needs to be at `$HOME/.docker/config.json` - login via `docker login`
 
 ### Linux Specific
 -------------------
