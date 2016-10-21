@@ -7,6 +7,7 @@ CLUSTER_DIR="$SCRIPT_DIR/cluster"
 VOLUMES_DIR="$SCRIPT_DIR/cluster/volumes"
 VIRTUAL_INTERFACE_IP=192.168.44.10
 FH_CORE_OPENSHIFT_TEMPLATES="$HOME/work/fh-core-openshift-templates"
+FH_MBAAS_OPENSHIFT_TEMPLATES="$HOME/work/fh-openshift-templates"
 export CORE_PROJECT_NAME=core
 export CLUSTER_DOMAIN=$VIRTUAL_INTERFACE_IP.xip.io
 
@@ -158,6 +159,5 @@ echo "Waiting."
 sleep 60
 oc get po
 
-# TODO: MBaaS creation & hook up
-
 cd $SCRIPT_DIR
+./mup.sh
