@@ -1,5 +1,5 @@
 # Create default MBaaS
-export FH_MBAAS_OPENSHIFT_TEMPLATES=${FH_MBAAS_OPENSHIFT_TEMPLATES:-"$HOME/work/fh-openshift-templates"}
+export FH_MBAAS_OPENSHIFT_TEMPLATES=${FH_MBAAS_OPENSHIFT_TEMPLATES:-"$HOME/work/fh-mbaas-openshift-templates"}
 export VIRTUAL_INTERFACE_IP=192.168.44.10
 export CORE_PROJECT_NAME=core
 export CLUSTER_DOMAIN=cup.feedhenry.io
