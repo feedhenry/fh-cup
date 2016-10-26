@@ -4,6 +4,9 @@ export VIRTUAL_INTERFACE_IP=192.168.44.10
 export CORE_PROJECT_NAME=core
 export CLUSTER_DOMAIN=cup.feedhenry.io
 export MBAAS_PROJECT_NAME=mbaas1
+
+set -e
+
 oc new-project $MBAAS_PROJECT_NAME
 
 installFHC() {
