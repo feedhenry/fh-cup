@@ -1,0 +1,15 @@
+# Sample Config - expected in ~/.fh-cup.toml
+IP = "192.168.44.10"
+FhCupDir = "/path-to-gospace/src/github.com/fheng/fh-cup" # Used to determine where to put cluster persistence files/directories
+CoreProjectName = "core"
+CoreOpenShiftTemplates = "/path-to/fh-core-openshift-templates"
+MBaaSOpenShiftTemplates = "/path-to/fh-mbaas-openshift-templates"
+MBaaSProjectName = "mbaas1"
+DockerUsername = "dockerhub-username"
+DockerPassword = "dockerhub-password"
+DockerEmail = "dockerhub-email"
+ClusterDomain = "cup.feedhenry.io"
+DockerConfigJSONPath = "/path-to-docker-config-json/.docker/config.json"
+FhcTarget = "rhmap.cup.feedhenry.io"
+FhcUsername = "rhmap-admin@example.com"
+FhcPassword = "Password1"
