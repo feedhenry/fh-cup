@@ -1,2 +1,5 @@
+vendor
+fh-cup
 iptables*
 pvs.json
+.DS_Store
