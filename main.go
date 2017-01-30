@@ -610,6 +610,16 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name:    "link",
+			Aliases: []string{"c"},
+			Usage:   "Link Core & MBaaS via fhc",
+			Action: func(c *cli.Context) error {
+				log.Println("Linking Core & MBaaS via fhc...")
+				LinkMBaaSAndCore(conf)
+				return nil
+			},
+		},
 	}
 
 	app.Run(os.Args)
