@@ -39,7 +39,7 @@ Some other commands and options
 - For a core, you should allocate ~7GB of memory
 - You *must* add `172.30.0.0/16` as an insecure registry (via the Docker for Mac UI)
 
-## Docker for Linux
+## ** Docker for Linux
 
 [CF: https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md#getting-started]
 
@@ -83,3 +83,16 @@ Some other commands and options
 
 * Docker configuration needs to be at `$HOME/.docker/config.json` - login via `docker login`
 
+### FHC Core & MBaaS linking
+
+If you see an error similar to the following:
+
+```
+fhc ERR! Error: getaddrinfo ENOTFOUND rhmap.cup.feedhenry.io rhmap.cup.feedhenry.io:443
+```
+
+This is likely because this hostname is not resolved correctly. `*.cup.feedhenry.io` should resolve to `192.168.44.10`. Verify this with `dig` or similar, for example:
+
+```
+dig rhmap.cup.feedhenry.io
+```
