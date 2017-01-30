@@ -1,3 +1,6 @@
+cluster/config
+cluster/data
+cluster/volumes
 vendor
 fh-cup
 iptables*
