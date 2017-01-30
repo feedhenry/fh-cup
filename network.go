@@ -11,7 +11,10 @@ import (
 )
 
 func InterfaceExists(ipAddress string, interfaceName string) bool {
-	intf, err := net.InterfaceByName("lo0")
+	intf, err := net.InterfaceByName(interfaceName)
+	if intf == nil {
+		return false
+	}
 	if err != nil {
 		log.Panic(err)
 	}
@@ -36,7 +39,7 @@ func MacOSInterfaceExists(ipAddress string) bool {
 }
 
 func LinuxInterfaceExists(ipAddress string) bool {
-	return InterfaceExists(ipAddress, "lo:0")
+	return InterfaceExists(ipAddress, "lo")
 }
 
 func RemoveMacOSInterface(ipAddress string) {
