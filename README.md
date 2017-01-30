@@ -34,6 +34,7 @@ Some other commands and options
 - [x] OpenShift 3 Client CLI Tool `oc` version >= *[v1.3](https://github.com/openshift/origin/releases/tag/v1.3.1)*
 - [x] `socat` installed
 - [x] `docker` logged in to a Docker Hub account with access to the rhmap project
+- [x] `fhc` installed
 
 ## * Docker for Mac
 - For a core, you should allocate ~7GB of memory
@@ -78,8 +79,15 @@ Some other commands and options
 
 ## Troubleshooting & Known Issues
 
-### General
--------------------
+#### General
 
 * Docker configuration needs to be at `$HOME/.docker/config.json` - login via `docker login`
 
+#### `No such file or folder` when looking for templates/generated/fh-core-XXXXX.json
+
+* Ensure the `generated/` folder is populated, if not, run `npm install` and `grunt` from the templates root
+* Make sure to use complete paths in `~/.fh-cup.toml` eg. `/Users/ecrosbie/dir` instead of `~/dir`
+
+#### `Unable to reach host` when trying to start up the cluster
+
+* You may need to be on the RedHat internal network/vpn in order to start up the cluster initially
