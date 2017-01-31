@@ -10,6 +10,9 @@
 
 Wrapper CLI for `oc cluster up` to give you a working local RHMAP core for development with OpenShift Origin.
 
+# CI
+PRs are built using Travis CI
+
 # Installation and Running
 
 * Clone this repo to your $GOPATH
