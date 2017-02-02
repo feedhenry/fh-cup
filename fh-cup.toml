@@ -2,11 +2,11 @@
 IP = "192.168.44.10" # Optional
 
 # Required - Used to determine where to put cluster persistence files/directories. Important - use a full path.
-FhCupDir = "/path-to-gospace/src/github.com/fheng/fh-cup"
+FhCupDir = "/path-to-gospace/src/github.com/feedhenry/fh-cup"
 
 CoreProjectName = "core" # Optional
 CoreOpenShiftTemplates = "/path-to/fh-core-openshift-templates" # Required - Important, use a full path here
-MBaaSOpenShiftTemplates = "/path-to/fh-mbaas-openshift-templates" # Required - Important, use a full path here
+MBaaSOpenShiftTemplates = "/path-to/fh-openshift-templates" # Required - Important, use a full path here
 MBaaSProjectName = "mbaas1" # Optional
 DockerUsername = "dockerhub-username" # Required
 DockerPassword = "dockerhub-password" # Required
