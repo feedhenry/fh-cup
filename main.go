@@ -4,21 +4,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BurntSushi/toml"
+	"github.com/cenkalti/backoff"
+	"github.com/codeskyblue/go-sh"
+	"github.com/fatih/color"
+	"github.com/hashicorp/go-version"
+	"github.com/mitchellh/go-homedir"
+	"github.com/samalba/dockerclient"
+	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
-
-	"github.com/BurntSushi/toml"
-	"github.com/cenkalti/backoff"
-	"github.com/fatih/color"
-	"github.com/hashicorp/go-version"
-	"github.com/mitchellh/go-homedir"
-	"github.com/samalba/dockerclient"
-	"github.com/urfave/cli"
 )
 
 type Config struct {
@@ -85,8 +86,8 @@ func PollForFinishedDeployment(timeOut int) error {
 	bo.Multiplier = 1.1
 	err := backoff.Retry(operation, bo)
 	if err != nil {
-		log.Println("An error occured when waiting for pod deployment completion.")
-		return err
+		log.Println("An error occured when waiting for pod deployment completion - aborting.")
+		os.Exit(-1)
 	}
 
 	log.Println("No pending deployments, done.")
@@ -121,25 +122,63 @@ func isLinux() bool {
 	return false
 }
 
+func hasSELinux() bool {
+	if !isLinux() {
+		return false
+	}
+
+	// TODO: check `getenforce` for 'Enforcing' or 'Permissive'
+	if _, err := os.Stat("/usr/bin/chcon"); err == nil {
+		return true
+	}
+
+	return false
+}
+
 func CleanDataDirectories(fhCupDir string) {
-	if err := os.RemoveAll(fmt.Sprintf("%s/cluster", fhCupDir)); err != nil {
-		fmt.Println("Error removing cluster files.")
-		fmt.Fprintln(os.Stderr, err)
+	log.Println(fmt.Sprintf("Cleaning: %s/cluster", fhCupDir))
+
+	if fhCupDir == "" {
+		log.Println("Error removing cluster files - no path to data dir specified, aborting.")
 		os.Exit(1)
 	}
 
+	var cmd = sh.Command("sh", "-c", fmt.Sprintf("sudo rm -rf %s/cluster", fhCupDir))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	if err := cmd.Run(); err != nil {
+		log.Println("Error removing cluster files.")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func MakeDataDirectories(fhCupDir string) {
-	os.Mkdir(fmt.Sprintf("%s/cluster", fhCupDir), 0755)
-	os.Mkdir(fmt.Sprintf("%s/cluster/data", fhCupDir), 0755)
-	os.Mkdir(fmt.Sprintf("%s/cluster/config", fhCupDir), 0755)
-	os.Mkdir(fmt.Sprintf("%s/cluster/volumes", fhCupDir), 0755)
+	os.Mkdir(fmt.Sprintf("%s/cluster", fhCupDir), 0777)
+	os.Mkdir(fmt.Sprintf("%s/cluster/data", fhCupDir), 0777)
+	os.Mkdir(fmt.Sprintf("%s/cluster/config", fhCupDir), 0777)
+	os.Mkdir(fmt.Sprintf("%s/cluster/volumes", fhCupDir), 0777)
 }
 
 func CreatePVDirectories(fhCupDir string) {
 	for i := 0; i < 10; i++ {
 		os.Mkdir(fmt.Sprintf("%s/cluster/volumes/devpv%v", fhCupDir, i), 0777)
+
+		if hasSELinux() {
+			// Change security context of this folder to prevent permissions errors
+			var cmd = sh.Command("sh", "-c", fmt.Sprintf("chcon -R -t svirt_sandbox_file_t %s/cluster/volumes/devpv%v", fhCupDir, i))
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Stdin = os.Stdin
+
+			if err := cmd.Run(); err != nil {
+				fmt.Println("Error changing security context on PVs")
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+		}
 	}
 }
 
@@ -227,11 +266,11 @@ func RunSetupScript(timeOut int, scriptName string, conf Config) {
 }
 
 func RunInfraSetup(conf Config) {
-	RunSetupScript(60, "infra.sh", conf)
+	RunSetupScript(120, "infra.sh", conf)
 }
 
 func RunBackendSetup(conf Config) {
-	RunSetupScript(60, "backend.sh", conf)
+	RunSetupScript(120, "backend.sh", conf)
 }
 
 func RunFrontendSetup(conf Config) {
@@ -250,7 +289,7 @@ func CreatePVS(fhCupDir string) {
 	}
 
 	// Replace paths with real-paths
-	pvConfig := strings.Replace(string(input), "REPLACE_ME", fmt.Sprintf("%s/cluster/volumes/", fhCupDir), -1)
+	pvConfig := strings.Replace(string(input), "REPLACE_ME", fmt.Sprintf("%s/cluster/volumes", fhCupDir), -1)
 
 	err = ioutil.WriteFile(fmt.Sprintf("%s/pvs.json", fhCupDir), []byte(pvConfig), 0755)
 	if err != nil {
@@ -473,6 +512,9 @@ func RunFHCCommand(arguments []string) {
 }
 
 func main() {
+	// Set umask for the process - fixes some permissions errors with creating
+	// cluster data folders where umask is inherited from the running user
+	syscall.Umask(0)
 	Cup()
 
 	var conf Config
