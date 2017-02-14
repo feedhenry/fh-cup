@@ -30,6 +30,9 @@ Some other commands and options
 ## TODO
 - [ ] Drop in config into `~/.fh-cup.toml` (maybe interactive)
 - [ ] More pre-flight checks
+- [ ] Embed templates into binary - use embedded by default. Single distributable.
+- [ ] Build for multiple platforms
+- [ ] Change the MBaaS + Core linking to use either fhc in a container, or cURL the endpoints
 
 ## Prerequisites
 
