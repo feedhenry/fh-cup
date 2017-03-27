@@ -203,25 +203,6 @@ func RunPreRequisites(conf Config) {
 	log.Println("Done.")
 }
 
-func UpdateSecurityContextContraints(conf Config) {
-	log.Println("Updating Security Context Constraints...")
-	oc := new(OpenShiftClient)
-	log.Println("Switching to admin...")
-	oc.SwitchToAdmin()
-	oc.Create(fmt.Sprintf("%s/gitlab-shell/scc-anyuid-with-chroot.json", conf.CoreOpenShiftTemplates))
-	log.Println("SCC created, adding policy for project...")
-
-	var args []string = []string{
-		"adm",
-		"policy",
-		"add-scc-to-user",
-		"anyuid-with-chroot",
-		fmt.Sprintf("system:serviceaccount:%s:default", conf.CoreProjectName)}
-	oc.RunOCCommand(args)
-	log.Println("Done, switching back to Developer account.")
-	oc.SwitchToDeveloper()
-}
-
 func CreatePrivateDockerConfig(conf Config) {
 	log.Println("Creating private-docker-cfg secret from ~/.docker/config.json ...")
 
@@ -409,7 +390,6 @@ func InstallCore(conf Config) {
 
 	// Shell-out and run our core setup scripts
 	RunPreRequisites(conf)
-	UpdateSecurityContextContraints(conf)
 	CreatePrivateDockerConfig(conf)
 	RunInfraSetup(conf)
 	RunBackendSetup(conf)
@@ -417,9 +397,11 @@ func InstallCore(conf Config) {
 	RunMonitoringSetup(conf)
 }
 
-func InstallMBaaS(conf Config) {
+func InstallMBaaS(conf Config, switchUser bool) {
 	oc := new(OpenShiftClient)
-	oc.SwitchToDeveloper()
+	if switchUser {
+		oc.SwitchToDeveloper()
+	}
 	oc.CreateProject(conf.MBaaSProjectName)
 	CreatePrivateDockerConfig(conf)
 
@@ -427,7 +409,7 @@ func InstallMBaaS(conf Config) {
 	oc.RunOCCommand([]string{
 		"new-app",
 		"-f",
-		fmt.Sprintf("%s/fh-mbaas-template-1node-persistent.json", conf.MBaaSOpenShiftTemplates)})
+		fmt.Sprintf("%s/fh-mbaas-template-1node.json", conf.MBaaSOpenShiftTemplates)})
 	PollForFinishedDeployment(120)
 	log.Println("MBaaS setup Done.")
 }
@@ -584,13 +566,13 @@ func main() {
 					log.Println("Cluster is now up.")
 				}
 
-				// Create PVs
-				CreatePVS(conf.FhCupDir)
+				// Create PVs - Can be removed post 3.5
+				// CreatePVS(conf.FhCupDir)
 
 				log.Println("PVs Created, installing Core...")
 				InstallCore(conf)
 				log.Println("Installing MBaaS...")
-				InstallMBaaS(conf)
+				InstallMBaaS(conf, true)
 				log.Println("Linking MBaaS & Core...")
 				LinkMBaaSAndCore(conf)
 
