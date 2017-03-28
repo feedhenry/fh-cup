@@ -32,7 +32,6 @@ Some other commands and options
 - [ ] More pre-flight checks
 - [ ] Embed templates into binary - use embedded by default. Single distributable.
 - [ ] Build for multiple platforms
-- [ ] Change the MBaaS + Core linking to use either fhc in a container, or cURL the endpoints
 
 ## Prerequisites
 
@@ -40,7 +39,6 @@ Some other commands and options
 - [x] OpenShift 3 Client CLI Tool `oc` version >= *[v1.3](https://github.com/openshift/origin/releases/tag/v1.3.1)*
 - [x] `socat` installed
 - [x] `docker` logged in to a Docker Hub account with access to the rhmap project
-- [x] `fhc` installed
 
 ## * Docker for Mac
 - For a core, you should allocate ~7GB of memory

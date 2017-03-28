@@ -481,7 +481,9 @@ func LinkMBaaSAndCore(conf Config) {
 }
 
 func RunFHCCommand(arguments []string) {
-	cmd := exec.Command("fhc", arguments...)
+	var args = strings.Join(arguments[:], " ")
+	// Use a Dockerised version of fhc
+	var cmd = sh.Command("sh", "-c", fmt.Sprintf("docker run -v $HOME:/root -it feedhenry/fhc %s", args))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
