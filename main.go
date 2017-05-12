@@ -7,11 +7,9 @@ import (
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
-	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
-	"strings"
 	"syscall"
 )
 
@@ -23,13 +21,14 @@ type Config struct {
 	DockerUsername          string
 	DockerPassword          string
 	DockerEmail             string
-	DockerConfigJSONPath    string
 	ClusterDomain           string
 	MBaaSOpenShiftTemplates string
 	MBaaSProjectName        string
 	FhcTarget               string
 	FhcUsername             string
 	FhcPassword             string
+	RhmapAnsibleDir         string
+	RhmapAnsibleImage       string
 }
 
 func Cup() {
@@ -120,96 +119,10 @@ func CreatePVDirectories(fhCupDir string) {
 	}
 }
 
-func CreatePrivateDockerConfig(conf Config) {
-	log.Println("Creating private-docker-cfg secret from ~/.docker/config.json ...")
-
-	oc := new(OpenShiftClient)
-	oc.RunOCCommand([]string{
-		"secrets",
-		"new",
-		"private-docker-cfg",
-		fmt.Sprintf(".dockerconfigjson=%s", conf.DockerConfigJSONPath)})
-
-	oc.RunOCCommand([]string{
-		"secrets",
-		"link",
-		"default",
-		"private-docker-cfg",
-		"--for=pull"})
-
-	log.Println("Done.")
-}
-
-func CreatePVS(fhCupDir string) {
-	// Construct new PVS config from template
-	input, err := ioutil.ReadFile(fmt.Sprintf("%s/pvs_template.json", fhCupDir))
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	// Replace paths with real-paths
-	pvConfig := strings.Replace(string(input), "REPLACE_ME", fmt.Sprintf("%s/cluster/volumes", fhCupDir), -1)
-
-	err = ioutil.WriteFile(fmt.Sprintf("%s/pvs.json", fhCupDir), []byte(pvConfig), 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	oc := new(OpenShiftClient)
-	log.Println("Switching to admin...")
-	oc.SwitchToAdmin()
-
-	// Create the PVs (as an admin)
-	oc.Create(fmt.Sprintf("%s/pvs.json", fhCupDir))
-	log.Println("PVs created, switching back to Developer...")
-	oc.SwitchToDeveloper()
-
-	log.Println("Done.")
-}
-
 func Clean(conf Config) {
 	CleanDataDirectories(conf.FhCupDir)
 	MakeDataDirectories(conf.FhCupDir)
 	CreatePVDirectories(conf.FhCupDir)
-}
-
-func LinkMBaaSAndCore(conf Config) {
-	RunFHCCommand([]string{
-		"target",
-		conf.FhcTarget,
-		conf.FhcUsername,
-		conf.FhcPassword})
-
-	oc := new(OpenShiftClient)
-	oc.SwitchToDeveloper()
-	var MBaaSKey = oc.GetMBaaSkey()
-	var openshiftToken = oc.GetUserToken()
-
-	RunFHCCommand([]string{
-		"admin",
-		"mbaas",
-		"create",
-		"--id=dev",
-		"--url=https://cup.feedhenry.io:8443", //TODO de-hard-code
-		fmt.Sprintf("--servicekey=%s", MBaaSKey),
-		"--label=dev",
-		"--username=test",
-		"--password=test",
-		"--type=openshift3",
-		"--routerDNSUrl=*.cup.feedhenry.io",
-		"--fhMbaasHost=https://mbaas-mbaas1.cup.feedhenry.io"})
-
-	RunFHCCommand([]string{
-		"admin",
-		"environments",
-		"create",
-		"--id=dev",
-		"--label=dev",
-		"--target=dev",
-		fmt.Sprintf("--token=%s", openshiftToken),
-	})
-
-	log.Println("MBaaS and Core now linked.")
 }
 
 func main() {
@@ -285,20 +198,10 @@ func main() {
 					log.Println("Cluster is now up.")
 				}
 
-				// Create PVs - Can be removed post 3.5
-				// https://github.com/openshift/origin/pull/12456
-				// CreatePVS(conf.FhCupDir)
-
 				log.Println("PVs Created, installing Core...")
-				InstallCore(conf)
-				log.Println("Installing MBaaS...")
-				InstallMBaaS(conf, true)
-				log.Println("Linking MBaaS & Core...")
-				LinkMBaaSAndCore(conf)
+				InstallRHMAP(conf)
 
 				log.Println("Cluster is now up: https://rhmap.cup.feedhenry.io")
-				log.Println("Login with: rhmap-admin@example.com / Password1")
-
 				return nil
 			},
 			Flags: []cli.Flag{
@@ -358,12 +261,12 @@ func main() {
 			},
 		},
 		{
-			Name:    "link",
+			Name:    "install",
 			Aliases: []string{"c"},
-			Usage:   "Link Core & MBaaS via fhc",
+			Usage:   "Run the RHMAP Core & MBaaS Ansible installer on a running cluster",
 			Action: func(c *cli.Context) error {
-				log.Println("Linking Core & MBaaS via fhc...")
-				LinkMBaaSAndCore(conf)
+				log.Println("Running rhmap-ansible installer in a running cluster...")
+				InstallRHMAP(conf)
 				return nil
 			},
 		},

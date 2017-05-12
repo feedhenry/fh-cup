@@ -1,3 +1,4 @@
+.vscode
 cluster/config
 cluster/data
 cluster/volumes

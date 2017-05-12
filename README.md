@@ -16,6 +16,7 @@ PRs are built using Travis CI
 # Installation and Running
 
 * Clone this repo to your $GOPATH
+  * You'll also need to clone [rhmap-ansible](https://github.com/fheng/rhmap-ansible), [fh-core-openshift-templates](https://github.com/fheng/fh-core-openshift-templates) & [fh-openshift-templates](https://github.com/feedhenry/fh-openshift-templates) to a working directory
 * Copy `fh-cup.toml` to `~/.fh-cup.toml` and configure the paths and Docker Hub details
 # Install dependencies via `glide i` using Glide
 * Build `fh-cup` via `go build`
@@ -26,6 +27,7 @@ Some other commands and options
 * `./fh-cup down --clean # Tear down cluster & clean leftover config/persistence`
 * `./fh-cup check # Check for pre-requisites (WIP)`
 * `./fh-cup up --skip-image-seeding # Skip image seeding (Not recommended)` 
+* `./fh-cup install # Run rhmap-ansible installer on an already running cluster`
 
 ## TODO
 - [ ] Drop in config into `~/.fh-cup.toml` (maybe interactive)
