@@ -270,6 +270,15 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name:    "seed",
+			Aliases: []string{"c"},
+			Usage:   "Seed RHMAP Core & MBaaS images into Docker",
+			Action: func(c *cli.Context) error {
+				SeedImages(conf, ListImages(conf))
+				return nil
+			},
+		},
 	}
 
 	app.Run(os.Args)
