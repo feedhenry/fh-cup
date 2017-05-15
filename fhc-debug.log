@@ -1,0 +1,4 @@
+WARN Error checking latest version
+info No http/https given, assuming https://
+ERR! Invalid target: https://rhmap.cup.feedhenry.io
+verbose exit [ 1, true ]

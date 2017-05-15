@@ -2,16 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/cenkalti/backoff"
+	"github.com/codeskyblue/go-sh"
 	"github.com/samalba/dockerclient"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
-	"time"
 )
 
 type TemplateObject struct {
@@ -29,104 +26,6 @@ type Parameter struct {
 	Description string `json:"description"`
 	Value       string `json:"value"`
 	Required    bool   `json:"required"`
-}
-
-// PollForFinishedDeployment - returns when either polling times out with an error, or with nil when no pods are in a deploying state
-func PollForFinishedDeployment(timeOut int) error {
-	operation := func() error {
-		var (
-			cmdOut []byte
-			err    error
-		)
-		log.Println("Checking Pod deploy status...")
-
-		// TODO: resolve RHMAP-11819
-		cmd := exec.Command("/bin/sh", "-c", "oc get pods | { grep -v ups || true; } | { grep \"deploy\" || true; }")
-		if cmdOut, err = cmd.Output(); err != nil {
-			fmt.Fprintln(os.Stderr, "Error checking for finished Pod deployment: ", err)
-		}
-		log.Println(string(cmdOut))
-
-		if len(cmdOut) == 0 {
-			// Done
-			return nil
-		}
-
-		// In progress
-		return errors.New("Waiting for pods to be ready.")
-	}
-
-	bo := backoff.NewExponentialBackOff()
-	bo.MaxElapsedTime = time.Duration(timeOut) * time.Second
-	bo.Multiplier = 1.1
-	err := backoff.Retry(operation, bo)
-	if err != nil {
-		log.Println("An error occured when waiting for pod deployment completion - aborting.")
-		os.Exit(-1)
-	}
-
-	log.Println("No pending deployments, done.")
-	return nil
-}
-
-func RunPreRequisites(conf Config) {
-	log.Println("Running prerequisites.sh...")
-	env := os.Environ()
-	env = append(env, fmt.Sprintf("CLUSTER_DOMAIN=%s", conf.ClusterDomain))
-	cmd := exec.Command("/bin/bash", fmt.Sprintf("%s/scripts/core/prerequisites.sh", conf.CoreOpenShiftTemplates))
-	cmd.Env = env
-
-	// Redirect stdout/stderr/stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error calling `prerequisites.sh`")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	log.Println("Done.")
-}
-
-func RunSetupScript(timeOut int, scriptName string, conf Config) {
-	log.Println(fmt.Sprintf("Running %s...", scriptName))
-	env := os.Environ()
-	env = append(env, fmt.Sprintf("CLUSTER_DOMAIN=%s", conf.ClusterDomain))
-	cmd := exec.Command("/bin/bash", fmt.Sprintf("%s/scripts/core/%s", conf.CoreOpenShiftTemplates, scriptName))
-	cmd.Env = env
-
-	// Redirect stdout/stderr/stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println(fmt.Sprintf("Error calling %s", scriptName))
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	PollForFinishedDeployment(timeOut)
-
-	log.Println(fmt.Sprintf("%s - complete.", scriptName))
-}
-
-func RunInfraSetup(conf Config) {
-	RunSetupScript(120, "infra.sh", conf)
-}
-
-func RunBackendSetup(conf Config) {
-	RunSetupScript(120, "backend.sh", conf)
-}
-
-func RunFrontendSetup(conf Config) {
-	RunSetupScript(120, "frontend.sh", conf)
-}
-
-func RunMonitoringSetup(conf Config) {
-	RunSetupScript(60, "monitoring.sh", conf)
 }
 
 func ReadImages(templateJsonPath string) (images []string) {
@@ -218,32 +117,25 @@ func SeedImages(conf Config, images []string) {
 	log.Println("Done.")
 }
 
-func InstallCore(conf Config) {
-	oc := new(OpenShiftClient)
-	oc.CreateProject(conf.CoreProjectName)
+func InstallRHMAP(conf Config) {
+	log.Println("Running rhmap-ansible installer...")
 
-	// Shell-out and run our core setup scripts
-	RunPreRequisites(conf)
-	CreatePrivateDockerConfig(conf)
-	RunInfraSetup(conf)
-	RunBackendSetup(conf)
-	RunFrontendSetup(conf)
-	RunMonitoringSetup(conf)
-}
+	var cmd = sh.Command("sh", "-c", fmt.Sprintf("docker run -v %s/inventories:/opt/app-root/src/inventories"+
+		" -v %s/generated:/opt/rhmap/templates/core"+
+		" -v %s:/opt/rhmap/templates/mbaas"+
+		" -e PLAYBOOK_FILE=/opt/app-root/src/playbooks/poc.yml"+
+		" -e INVENTORY_FILE=/opt/app-root/src/inventories/engineering/cup/fh-cup-host"+
+		" -e OPTS=\"-e core_templates_dir=/opt/rhmap/templates/core -e mbaas_templates_dir=/opt/rhmap/templates/mbaas"+
+		" -e mbaas_project_name=mbaas -e core_project_name=core -e strict_mode=false --tags deploy\""+
+		" %s",
+		conf.RhmapAnsibleDir, conf.CoreOpenShiftTemplates, conf.MBaaSOpenShiftTemplates, conf.RhmapAnsibleImage))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
 
-func InstallMBaaS(conf Config, switchUser bool) {
-	oc := new(OpenShiftClient)
-	if switchUser {
-		oc.SwitchToDeveloper()
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error calling `rhmap-ansible` installer")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	oc.CreateProject(conf.MBaaSProjectName)
-	CreatePrivateDockerConfig(conf)
-
-	// Setup our MBaaS via shelling out to MBaaS setup scripts
-	oc.RunOCCommand([]string{
-		"new-app",
-		"-f",
-		fmt.Sprintf("%s/fh-mbaas-template-1node.json", conf.MBaaSOpenShiftTemplates)})
-	PollForFinishedDeployment(120)
-	log.Println("MBaaS setup Done.")
 }
