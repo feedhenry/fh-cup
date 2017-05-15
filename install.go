@@ -125,9 +125,8 @@ func InstallRHMAP(conf Config) {
 		" -v %s:/opt/rhmap/templates/mbaas"+
 		" -e PLAYBOOK_FILE=/opt/app-root/src/playbooks/poc.yml"+
 		" -e INVENTORY_FILE=/opt/app-root/src/inventories/engineering/cup/fh-cup-host"+
-		" -e \"mbaas_project_name=mbaas\""+
-		" -e \"core_project_name=core\""+
-		" -e OPTS=\"--tags deploy\""+
+		" -e OPTS=\"-e core_templates_dir=/opt/rhmap/templates/core -e mbaas_templates_dir=/opt/rhmap/templates/mbaas"+
+		" -e mbaas_project_name=mbaas -e core_project_name=core -e strict_mode=false --tags deploy\""+
 		" %s",
 		conf.RhmapAnsibleDir, conf.CoreOpenShiftTemplates, conf.MBaaSOpenShiftTemplates, conf.RhmapAnsibleImage))
 	cmd.Stdout = os.Stdout
