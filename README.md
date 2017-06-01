@@ -43,8 +43,9 @@ Some other commands and options
 - [x] `docker` logged in to a Docker Hub account with access to the rhmap project
 
 ## * Docker for Mac
-- For a core, you should allocate ~7GB of memory
+- For an RHMAP Core & MBaaS install, you should allocate ~7GB of memory & > 5 CPU cores
 - You *must* add `172.30.0.0/16` as an insecure registry (via the Docker for Mac UI)
+- Kubernetes is currently broken when using CE editions of Docker. For macOS, it's recommended to use [Docker 1.13.1](https://download.docker.com/mac/stable/1.13.1.15353/Docker.dmg) for now.
 
 ## ** Docker for Linux
 
