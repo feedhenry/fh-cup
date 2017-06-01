@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"os/exec"
 	"strings"
@@ -149,22 +148,27 @@ func (oc OpenShiftClient) CreateProject(projectName string) {
 }
 
 func IsUp(ipAddress string) bool {
-	// TODO: check for running socat processes also
-	// docker ps -f name=origin -q - better
-	// TODO: This is brittle. May want to also check for running openshift containers via docker ps or similar also.
-	var status string
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:8443", ipAddress), time.Second)
-	if err != nil {
-		status = "Unreachable"
-	} else {
-		status = "Online"
-		conn.Close()
-	}
-	log.Println(status)
+	// TODO - also check for `socat`` processes?
+	var (
+		cmdOut []byte
+		err    error
+	)
 
-	if status == "Online" {
+	cmd := exec.Command("/bin/sh", "-c", "docker ps | grep openshift | awk '{print $1}'")
+	cmdOut, err = cmd.Output()
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error ", err)
+	}
+
+	var trimmedOut = strings.TrimSpace(string(cmdOut))
+
+	if trimmedOut != "" {
+		log.Println(fmt.Sprintf("OpenShift running: %s", trimmedOut))
 		return true
 	}
+
+	log.Println("OpenShift is not running.")
 	return false
 }
 
