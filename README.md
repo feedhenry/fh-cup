@@ -28,6 +28,7 @@ Some other commands and options
 * `./fh-cup check # Check for pre-requisites (WIP)`
 * `./fh-cup up --skip-image-seeding # Skip image seeding (Not recommended)` 
 * `./fh-cup install # Run rhmap-ansible installer on an already running cluster`
+* `./fh-cup seed # Seed RHMAP Core & MBaaS images into Docker`
 
 ## TODO
 - [ ] Drop in config into `~/.fh-cup.toml` (maybe interactive)
