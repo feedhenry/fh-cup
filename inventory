@@ -1,0 +1,53 @@
+[Nodes:children]
+master
+core
+mbaas
+
+[Nodes:vars]
+ansible_connection=local
+target="cluster_up"
+domain_name="my-domain"
+git_external_protocol=http
+mbaas_target_id=test
+skip_tls=true
+
+# OpenShift Credentials
+master_url='https://localhost:8443'
+oc_user=developer
+oc_password=developer
+
+[Buildfarm:children]
+master
+macos
+
+[Buildfarm:vars]
+buildfarm_project_name="buildfarm"
+jenkins_route_protocol="https"
+
+buildfarm_csrf_enabled="false"
+#The number of days to store each build for each job
+buildfarm_builds_days=30
+#The total number of builds to store
+buidfarm_builds_total=""
+#The number of days to store each artifact
+buildfarm_artifacts_days=30
+#The total number of artifacts to store per job
+buildfarm_artifacts_total=""
+
+macos_user="jenkins"
+
+# Please add your Apple ID account details below. Required for XCode installation on Mac OS machines.
+xcode_install_user=""
+xcode_install_password=""
+
+[master]
+10.32.241.238
+
+[mbaas]
+10.32.241.238
+
+[core]
+10.32.241.238
+
+[macos]
+macos-node.example.com
