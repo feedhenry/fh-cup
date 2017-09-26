@@ -111,3 +111,24 @@ dig rhmap.cup.feedhenry.io
 
 * Ensure the `generated/` folder is populated, if not, run `npm install` and `grunt` from the templates root
 * Make sure to use complete paths in `~/.fh-cup.toml` eg. `/Users/ecrosbie/dir` instead of `~/dir`
+
+### Error: Waiting for API server to start listening
+
+If you see the following error (usually on a Mac):
+
+```
+   Waiting for API server to start listening
+FAIL
+   Error: timed out waiting for OpenShift container "origin"
+   WARNING: 192.168.44.10:8443 may be blocked by firewall rules
+   Details:
+     No log available from "origin" container
+```
+
+Along with lots of lines in the origin container logs with the following:
+
+```
+I0926 20:55:00.077851   29405 logs.go:41] http: TLS handshake error from 127.0.0.1:37680: EOF
+```
+
+It's likely that traffic is being blocked by a firewall or filter (e.g. Little Snitch). Disable or allow access to fix.
