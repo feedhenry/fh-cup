@@ -18,7 +18,7 @@ PRs are built using Travis CI
 * Clone this repo to your $GOPATH
   * You'll also need to clone [rhmap-ansible](https://github.com/fheng/rhmap-ansible), [fh-core-openshift-templates](https://github.com/fheng/fh-core-openshift-templates) & [fh-openshift-templates](https://github.com/feedhenry/fh-openshift-templates) to a working directory
 * Copy `fh-cup.toml` to `~/.fh-cup.toml` and configure the paths and Docker Hub details
-# Install dependencies via `glide i` using Glide
+# Install dependencies via `dep ensure` using [dep](https://github.com/golang/dep)
 * Build `fh-cup` via `go build`
 * Run `./fh-cup up --clean`
 
@@ -42,6 +42,10 @@ Some other commands and options
 - [x] OpenShift 3 Client CLI Tool `oc` version >= *[v1.3](https://github.com/openshift/origin/releases/tag/v1.3.1)*
 - [x] `socat` installed
 - [x] `docker` logged in to a Docker Hub account with access to the rhmap project
+
+## Pre-requisites for Development
+- Golang >=1.9
+- [dep](https://github.com/golang/dep)
 
 ## * Docker for Mac
 - For an RHMAP Core & MBaaS install, you should allocate ~7GB of memory & > 5 CPU cores
